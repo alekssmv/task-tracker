@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+
+    frontend:
+        container_name: react
+        build:
+            context: ./frontend
+            dockerfile: Dockerfile
+        image: react
+        ports:
+            - "3000:3000"
+        volumes:
+            - ./frontend:/app
+
+    backend:
+        container_name: nest
+        build:
+            context: ./backend
+            dockerfile: Dockerfile
+        image: nest
+        ports:
+            - "80:3000"
+        volumes:
+            - ./backend:/app
+    
+    postgres:
+        image: postgres:16.4
+        restart: always
+        environment:
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: postgres
+            POSTGRES_DB: task_tracker
+        ports:
+            - "5432:5432"
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
