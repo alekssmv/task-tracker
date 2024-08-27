@@ -3,10 +3,8 @@ version: "3"
 services:
 
     frontend:
-        container_name: react
         build:
             context: ./frontend
-            dockerfile: Dockerfile
         image: react
         ports:
             - "3000:3000"
@@ -14,15 +12,14 @@ services:
             - ./frontend:/app
 
     backend:
-        container_name: nest
         build:
             context: ./backend
-            dockerfile: Dockerfile
-        image: nest
         ports:
             - "80:3000"
         volumes:
             - ./backend:/app
+        depends_on:
+            - postgres
     
     postgres:
         image: postgres:16.4
@@ -34,7 +31,7 @@ services:
         ports:
             - "5432:5432"
         volumes:
-            - pgdata:/var/lib/postgresql/data
+            - ./pgdata:/var/lib/postgresql/data
 
 volumes:
   pgdata:
