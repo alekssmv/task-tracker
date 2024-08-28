@@ -1,28 +1,39 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './controllers/app.controller';
+import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { TaskController } from './controllers/task.controller';
-
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
-import { User } from './entities/user.entity';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
+import { ConfigModule } from '@nestjs/config';
+import configDb from './config/config.db';
+import { User } from './users/user.entity';
+import { TasksModule } from './tasks/tasks.module';
+import { Task } from './tasks/task.entity';
+import { ServiceController } from './service/service.controller';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'postgres',
-      port: 5432,
-      username: 'postgres',
-      password: 'postgres',
-      database: 'task_tracker',
-      entities: [User],
+      host: configDb().host,
+      port: configDb().port,
+      username: configDb().username,
+      password: configDb().password,
+      database: configDb().database,
+      entities: [User, Task],
       synchronize: true,
     }),
+    AuthModule,
+    UsersModule,
+    TasksModule,
   ],
-  controllers: [AppController, TaskController],
+  controllers: [AppController, ServiceController],
   providers: [AppService],
 })
 export class AppModule {
-  constructor(private dataSource: DataSource) {}
+  constructor(private dataSource: DataSource) { }
 }
