@@ -13,11 +13,12 @@ export class AuthService {
     username: string,
     pass: string,
   ): Promise<{ access_token: string }> {
-    const user = await this.usersService.findOne(username);
+    const user = await this.usersService.findOne({ where: { login: username } });
+    
     if (user?.password !== pass) {
       throw new UnauthorizedException();
     }
-    const payload = { sub: user.id, username: user.login };
+    const payload = { id: user.id, login: user.login, name: user.name, roles: user.roles };
     return {
       access_token: await this.jwtService.signAsync(payload),
     };

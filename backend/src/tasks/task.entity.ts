@@ -32,4 +32,13 @@ export class Task {
 
   @Column()
   deadline: Date;
+
+  @Column({ enum: ['0%', '25%', '50%', '75%', '100%'], default: '0%' })
+  progress: string;
+
+  @Column()
+  assignee_name: string;
+
+  @Column({ nullable: true })
+  updated: Date;
 }

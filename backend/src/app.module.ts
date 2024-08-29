@@ -5,12 +5,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { ConfigModule } from '@nestjs/config';
 import configDb from './config/config.db';
 import { User } from './users/user.entity';
 import { TasksModule } from './tasks/tasks.module';
 import { Task } from './tasks/task.entity';
-import { ServiceController } from './service/service.controller';
+import { APP_GUARD } from '@nestjs/core';
+import { RolesGuard } from './roles/roles.guard';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -31,8 +32,11 @@ import { ServiceController } from './service/service.controller';
     UsersModule,
     TasksModule,
   ],
-  controllers: [AppController, ServiceController],
-  providers: [AppService],
+  controllers: [AppController],
+  providers: [AppService, {
+    provide: APP_GUARD,
+    useClass: RolesGuard
+  }],
 })
 export class AppModule {
   constructor(private dataSource: DataSource) { }
