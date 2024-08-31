@@ -1,13 +1,34 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import AdminTasks from './pages/admin/AdminTasks';
+import AdminCreateTask from './pages/admin/CreateTask';
+import Task from './pages/admin/Task';
+
+import AdminRoutes from './utils/AdminRoutes';
+import AssigneeRoutes from './utils/AssigneeRoutes';
+import NotAuthRoutes from './utils/NotAuthRoutes';
 
 const Router = () => {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/admin" element={<AdminTasks />} />
+
+        {/* Not auth routes */}
+        <Route element={<NotAuthRoutes />}>
+          <Route path="/" element={<Login />} />
+        </Route>
+
+        {/* Admin routes */}
+        <Route element={<AdminRoutes />}>
+          <Route path="/admin" element={<AdminTasks />} />
+          <Route path="/admin/task/create" element={<AdminCreateTask />} />
+          <Route path="/admin/task/:id" element={<Task />} />"
+        </Route>
+
+        {/* Assignee routes */}
+        <Route element={<AssigneeRoutes />}>
+        </Route>
+
       </Routes>
     </BrowserRouter>
   );

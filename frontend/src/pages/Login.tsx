@@ -1,5 +1,8 @@
-import React from 'react';
 import styled from 'styled-components';
+import api from '../utils/Api';
+import { FormEvent, useState } from 'react';
+import UserStore from '../stores/UserStore';
+import { useNavigate } from 'react-router-dom';
 
 const MainContainer = styled.main`
     border-radius: 20px;
@@ -13,60 +16,52 @@ const MainContainer = styled.main`
     overflow: hidden;
     font-family: 'Inter', sans-serif;
     color: #000;
-    padding: 50px 75px;
+    padding: 20px;
 `;
 
 const UserLabel = styled.h1`
     font-size: 20px;
     align-self: start;
-    margin-top: 40px;
+    margin-left: 200px;
+`;
+
+const ErrorMessage = styled.div`
+    margin-top: -23px;
+    color: red;
 `;
 
 const AuthorizationBox = styled.section`
     border-radius: 20px;
     background-color: #d9d9d9;
+    margin-top: 100px;
     display: flex;
     flex-direction: column;
     justify-content: right;
     font-size: 36px;
-    width: 500px;
-    padding: 131px 80px;
+    padding: 30px;
+    align-items: center;
+
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
 `;
 
 const AuthorizationTitle = styled.h2`
     border-radius: 20px;
-    font-size: 24px;
     background-color: #fff;
-    padding: 10px;
-`;
-
-const Field = styled.div`
-    border-radius: 20px;
-    background-color: #fff;
-    color: rgba(255, 255, 255, 0.4);
-    padding: 10px;
-`;
-
-const LoginField = styled(Field)`
-    margin-top: 60px;
-`;
-
-const PasswordField = styled(Field)`
-    margin-top: 24px;
-`;
-
-const ButtonField = styled(Field)`
-    margin-top: 60px;
-    margin-left: auto;
-    width: 80px;
-    text-align: left;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    align-items: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
 `;
 
 const Input = styled.input`
-    width: 100%;
+    border-radius: 20px;
+    padding: 10px;
     text-align: left;
-    background-color: transparent;
-    font-size: 24px;
+    font-size: 18px;
     border: none;
     &:focus {
         outline: none;
@@ -74,28 +69,65 @@ const Input = styled.input`
 `;
 
 const Button = styled.button`
-    ${Input};
-    align-self: flex-end;
-    cursor: pointer;
+    width: 100%;
+    border-radius: 30px;
+    padding: 15px;
+    text-align: center;
+    border: none;
 `;
 
-const Authorization: React.FC = () => {
+const Form = styled.form`
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 20px;
+`;
+
+const Authorization = () => {
+    
+    const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
+
+    const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const form = event.target as HTMLFormElement;
+        const login = form.elements.namedItem('login') as HTMLInputElement;
+        const password = form.elements.namedItem('login') as HTMLInputElement;
+        if (!login.value && !password.value) {
+            setError('Не все поля заполнены.');
+            return;
+        }
+
+        const response = await api.login(login.value, password.value);
+        if (response.success === false) {
+            setError(response.message);
+        }
+        localStorage.setItem('access_token', response.access_token);
+        UserStore.setLogin(login.value);
+        UserStore.setRoles(response.roles);
+
+        if (response.roles === "admin") {
+            console.log(response.roles)
+            navigate('/admin');
+        }
+        if (response.roles === "assignee") {
+            navigate('/assignee');
+        }
+    }
+
     return (
         <MainContainer>
             <UserLabel>Админ</UserLabel>
+
+            {error && <ErrorMessage>{error}</ErrorMessage>}
+
             <AuthorizationBox>
                 <AuthorizationTitle>Авторизация</AuthorizationTitle>
-                <form>
-                    <LoginField>
-                        <Input type="text" id="login" placeholder="Логин" aria-label="Логин" />
-                    </LoginField>
-                    <PasswordField>
-                        <Input type="password" id="password" placeholder="Пароль" aria-label="Пароль" />
-                    </PasswordField>
-                    <ButtonField>
-                        <Button type="submit">Войти</Button>
-                    </ButtonField>
-                </form>
+                <Form onSubmit={handleSubmit}>
+                    <Input type="text" id="login" placeholder="Логин" aria-label="Логин" />
+                    <Input type="password" id="password" placeholder="Пароль" aria-label="Пароль" />
+                    <Button type="submit">Войти</Button>
+                </Form>
             </AuthorizationBox>
         </MainContainer>
     );

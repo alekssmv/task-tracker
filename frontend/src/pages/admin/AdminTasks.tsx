@@ -1,4 +1,8 @@
 import styled from 'styled-components';
+import userStore from '../../stores/UserStore';
+import Api from '../../utils/Api';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ColumnMinWidths = {
     name: 200,
@@ -12,12 +16,25 @@ const TaskListContainer = styled.section`
     border-radius: 20px;
     background-color: #fff;
     display: flex;
+    flex-direction: column;
     min-width: 1200px;
     gap: 20px;
     overflow: hidden;
     flex-wrap: wrap;
     padding: 150px 350px;
     margin: 0 auto;
+`;
+
+const PageHeader = styled.header`
+    // end
+    margin-left: 110px;
+    display: flex;
+`;
+
+const TaskContentIcons = styled.div`
+    gap: 10px;
+    display: flex;
+    flex-direction: row;
 `;
 
 const TaskIcon = styled.img`
@@ -184,10 +201,6 @@ const TaskDeadlineColumn = styled.div`
 
 // Task item content
 
-interface TaskDeadlineProps {
-    overdue: boolean;
-}
-
 const TaskName = styled.div`
     display: flex;
     justify-content: center;
@@ -224,6 +237,18 @@ const TaskProgress = styled.div`
     background-color: ${(props) => props.color};
 `;
 
+interface TaskDeadlineProps {
+    overdue: boolean;
+}
+
+interface Task {
+    name: string;
+    type: { label: string; color: string };
+    assignee: string;
+    progress: { label: string; color: string };
+    title: string;
+  }
+
 
 const TaskDeadline = styled.div<TaskDeadlineProps>`
   align-self: stretch;
@@ -234,77 +259,98 @@ const TaskDeadline = styled.div<TaskDeadlineProps>`
   padding: 10px;
 `;
 
-const TaskList = () => {
+const  TaskList = () => {
+    const [tasks, setTasks] = useState<Task[]>([]);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchTasks = async () => {
+          const response = await Api.getAdminTasks(localStorage.getItem("access_token")!);
+          setTasks(response);
+        };
+        fetchTasks();
+      }, []);
+
     return (
         <TaskListContainer>
-            <TaskIcon src="/home.svg" alt="" />
-            <TaskContent>
-                <TaskHeader>
-                    <TaskHeaderRow>
-                        <TaskListTitle>Список задач:</TaskListTitle>
-                        <TaskActions>
-                            <Button>Настроить фильтр</Button>
-                            <Button>Создать задачу</Button>
-                        </TaskActions>
-                    </TaskHeaderRow>
-                    <TaskFilterRow>
-                        <FilterTitle>Название</FilterTitle>
-                        <FilterType>Тип</FilterType>
-                        <FilterAssignee>Исполнитель</FilterAssignee>
-                        <FilterProgress>Прогресс</FilterProgress>
-                        <FilterDeadline>Сроки</FilterDeadline>
-                    </TaskFilterRow>
-                </TaskHeader>
-                {[{
-                    name: 'Название задачи',
-                    type: { label: 'Task', color: '#8292ff' },
-                    assignee: 'Иванов И.И.',
-                    progress: { label: '50%', color: 'rgba(255, 234, 0, 0.5)' },
-                    deadline: { date: '20.09.2024', overdue: true }
-                }, {
-                    name: 'Название задачи 2',
-                    type: { label: 'Feature', color: '#ffae47' },
-                    assignee: 'Петров П.П.',
-                    progress: { label: '25%', color: 'rgba(255, 0, 0, 0.5)' },
-                    deadline: { date: '15.10.2024', overdue: false }
-                }, {
-                    name: 'Название задачи 3',
-                    type: { label: 'Bug', color: '#e53935' },
-                    assignee: 'Сидоров С.С.',
-                    progress: { label: '75%', color: 'rgba(0, 255, 0, 0.5)' },
-                    deadline: { date: '05.11.2024', overdue: false }
-                }, {
-                    name: 'Название задачи 4',
-                    type: { label: 'Release', color: '#3f51b5' },
-                    assignee: 'Кузнецов К.К.',
-                    progress: { label: '100%', color: 'rgba(0, 0, 255, 0.5)' },
-                    deadline: { date: '01.12.2024', overdue: false }
-                }, {
-                    name: 'Название задачи 5',
-                    type: { label: 'Feature', color: '#ffae47' },
-                    assignee: 'Петров П.П.',
-                    progress: { label: '0%', color: 'rgba(255, 0, 0, 0.5)' },
-                    deadline: { date: '05.01.2025', overdue: false }
-                },].map(task => (
-                    <TaskItem key={task.name}>
-                        <TaskNameColumn >
-                            <TaskName>{task.name}</TaskName>
-                        </TaskNameColumn>
-                        <TaskTypeColumn>
-                            <TaskType color={task.type.color}>{task.type.label}</TaskType>
-                        </TaskTypeColumn>
-                        <TaskAssigneeColumn>
-                            <TaskAssignee>{task.assignee}</TaskAssignee>
-                        </TaskAssigneeColumn>
-                        <TaskProgressColumn>
-                            <TaskProgress color={task.progress.color}>{task.progress.label}</TaskProgress>
-                        </TaskProgressColumn>
-                        <TaskDeadlineColumn>
-                            <TaskDeadline overdue={task.deadline.overdue}>{task.deadline.date}</TaskDeadline>
-                        </TaskDeadlineColumn>
-                    </TaskItem>
-                ))}
-            </TaskContent>
+            <PageHeader>
+                <h2>{userStore.getLogin()}</h2>
+            </PageHeader>
+            <TaskContentIcons>
+                <TaskIcon src="/home.svg" alt="" />
+                <TaskContent>
+                    <TaskHeader>
+                        <TaskHeaderRow>
+                            <TaskListTitle>Список задач:</TaskListTitle>
+                            <TaskActions>
+                                <Button>Настроить фильтр</Button>
+                                {/* redirect to create task */}
+                                <Button onClick={() => navigate('/admin/task/create')}>Создать задачу</Button>
+                            </TaskActions>
+                        </TaskHeaderRow>
+                        <TaskFilterRow>
+                            <FilterTitle>Название</FilterTitle>
+                            <FilterType>Тип</FilterType>
+                            <FilterAssignee>Исполнитель</FilterAssignee>
+                            <FilterProgress>Прогресс</FilterProgress>
+                            <FilterDeadline>Сроки</FilterDeadline>
+                        </TaskFilterRow>
+                    </TaskHeader>
+                    
+                    {
+                    // [{
+                    //     name: 'Название задачи',
+                    //     type: { label: 'Task', color: '#8292ff' },
+                    //     assignee: 'Иванов И.И.',
+                    //     progress: { label: '50%', color: 'rgba(255, 234, 0, 0.5)' },
+                    //     deadline: { date: '20.09.2024', overdue: true }
+                    // }, {
+                    //     name: 'Название задачи 2',
+                    //     type: { label: 'Feature', color: '#ffae47' },
+                    //     assignee: 'Петров П.П.',
+                    //     progress: { label: '25%', color: 'rgba(255, 0, 0, 0.5)' },
+                    //     deadline: { date: '15.10.2024', overdue: false }
+                    // }, {
+                    //     name: 'Название задачи 3',
+                    //     type: { label: 'Bug', color: '#e53935' },
+                    //     assignee: 'Сидоров С.С.',
+                    //     progress: { label: '75%', color: 'rgba(0, 255, 0, 0.5)' },
+                    //     deadline: { date: '05.11.2024', overdue: false }
+                    // }, {
+                    //     name: 'Название задачи 4',
+                    //     type: { label: 'Release', color: '#3f51b5' },
+                    //     assignee: 'Кузнецов К.К.',
+                    //     progress: { label: '100%', color: 'rgba(0, 0, 255, 0.5)' },
+                    //     deadline: { date: '01.12.2024', overdue: false }
+                    // }, {
+                    //     name: 'Название задачи 5',
+                    //     type: { label: 'Feature', color: '#ffae47' },
+                    //     assignee: 'Петров П.П.',
+                    //     progress: { label: '0%', color: 'rgba(255, 0, 0, 0.5)' },
+                    //     deadline: { date: '05.01.2025', overdue: false }
+                    // },]
+                    
+                    tasks.map(task => (
+                        <TaskItem key={task.name}>
+                            <TaskNameColumn >
+                                <TaskName>{task.title}</TaskName>
+                            </TaskNameColumn>
+                            <TaskTypeColumn>
+                                <TaskType color={task.type.color}>{task.type}</TaskType>
+                            </TaskTypeColumn>
+                            <TaskAssigneeColumn>
+                                <TaskAssignee>{task.assignee_name}</TaskAssignee>
+                            </TaskAssigneeColumn>
+                            <TaskProgressColumn>
+                                <TaskProgress color={task.progress.color}>{task.progress}</TaskProgress>
+                            </TaskProgressColumn>
+                            <TaskDeadlineColumn>
+                                <TaskDeadline overdue={task.deadline.overdue}>{task.deadline}</TaskDeadline>
+                            </TaskDeadlineColumn>
+                        </TaskItem>
+                    ))}
+                </TaskContent>
+            </TaskContentIcons>
         </TaskListContainer>
     );
 };

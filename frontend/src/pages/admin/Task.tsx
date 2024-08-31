@@ -1,7 +1,4 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import Api from '../../utils/Api';
 
 const TaskContainer = styled.section`
     border-radius: 20px;
@@ -58,7 +55,6 @@ const TextArea = styled.textarea`
     border: none;
     outline: none;
     font-size: 18px;
-    resize: none;
 `;
 
 const TaskContent = styled.div`
@@ -73,10 +69,6 @@ const TaskContent = styled.div`
     flex-basis: 0;
     width: fit-content;
     padding: 20px 30px 32px;
-`;
-
-const Form = styled.form`
-    width: 100%;
 `;
 
 // Header.
@@ -176,6 +168,14 @@ const TypeRow = styled.div`
     white-space: nowrap;
 `;
 
+const StatusRow = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+    white-space: nowrap;
+`;
+
 const AssigneeRow = styled.div`
     display: flex;
     align-items: center;
@@ -183,13 +183,15 @@ const AssigneeRow = styled.div`
     flex-direction: row;
 `;
 
+
 // Clolumn two.
 
 const ColumnTwo = styled.div`
     display: flex;
+    justify-content: flex-end;
     flex-direction: column;
+    margin-left: 500px;
     max-width: 200px;
-    margin-left: 300px;
     gap: 20px;
 `;
 
@@ -197,8 +199,27 @@ const DeadlineRow = styled.div`
     display: flex;
     flex-direction: row;
     align-items: center;
+    justify-content: flex-end;
     gap: 20px;
 `;
+
+const CreatedRow = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 20px;
+`;
+
+const ProgressRow = styled.div`
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 20px;
+`;
+
+//
 
 const Description = styled.div`
     margin-top: 20px;
@@ -212,93 +233,84 @@ const Buttons = styled.div`
     flex-direction: row;
     margin-top: 20px;
     gap: 20px;
+    justify-content: flex-end;
 `;
 
 const TaskList = () => {
+    return (
+        <TaskContainer>
+            <TaskIcon src="/home.svg" alt="" />
+            <TaskContent>
+                <TaskHeader>
+                    <TaskHeaderRow>
+                        <TaskHeaderTitle placeholder='Название задачи' />
+                        <TaskActions>
+                            <ButtonWhite>Закрыть</ButtonWhite>
+                        </TaskActions>
+                    </TaskHeaderRow>
+                </TaskHeader>
 
-  const navigate = useNavigate();
+                <TaskDetails>
+                    <Columns>
+                        <ColumnOne>
+                            <TypeRow>
+                                <h2>Тип задачи</h2>
 
-  const [assignees, setAssignees] = useState<string[]>([]);
+                                <Select>
+                                    <option>Тип 1</option>
+                                    <option>Тип 2</option>
+                                    <option>Тип 3</option>
+                                </Select>
 
-  useEffect(() => {
-    async function fetchData() {
-      const response = await Api.getAssignees(localStorage.getItem("access_token")!);
-      setAssignees(response);
-    }
-    fetchData();
-  }, []);
+                            </TypeRow>
+                            <StatusRow>
+                                <h2>Статус</h2>
+                                <Select>
+                                    <option>Тип 1</option>
+                                    <option>Тип 2</option>
+                                    <option>Тип 3</option>
+                                </Select>
+                            </StatusRow>
+                            <AssigneeRow>
+                                <h2>Исполнитель</h2>
+                                <Input placeholder='Иванов И.И.' />
+                            </AssigneeRow>
+                        </ColumnOne>
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const data = {
-      title: formData.get('title')?.toString() || "",
-      type: formData.get('type')?.toString() || "",
-      assignee_id: formData.get('assignee')?.toString() || "",
-      deadline: formData.get('deadline')?.toString() || "",
-      description: formData.get('description')?.toString() || ""
-    };
-    Api.createTask(localStorage.getItem("access_token")!,data);
-    navigate(-1);
-  };
+                        <ColumnTwo>
 
-  return (
-    <TaskContainer>
-      <TaskIcon src="/home.svg" alt="" />
-      <TaskContent>
-        <Form onSubmit={handleSubmit}>
-          <TaskHeader>
-            <TaskHeaderRow>
-              <TaskHeaderTitle name='title' placeholder='Название задачи' />
-              <TaskActions>
-                {/* Возвращаемся на предыдущую страницу */}
-                <ButtonWhite onClick={() => navigate(-1)}>Закрыть</ButtonWhite>
-              </TaskActions>
-            </TaskHeaderRow>
-          </TaskHeader>
-          <TaskDetails>
+                            <DeadlineRow>
+                                <h2>Срок выполнения</h2>
+                                <Input type="date" placeholder='20.09.2024' />
+                            </DeadlineRow>
+                            <CreatedRow>
+                                <h2>Создана</h2>
+                                <Input type="date" placeholder='20.09.2024' />
+                            </CreatedRow>
+                            <ProgressRow>
+                                <h2>Прогресс</h2>
+                                <Select>
+                                    <option>Тип 1</option>
+                                    <option>Тип 2</option>
+                                    <option>Тип 3</option>
+                                </Select>
+                            </ProgressRow>
+                        </ColumnTwo>
 
-            <Columns>
-              <ColumnOne>
-                <TypeRow>
-                  <h2>Тип задачи</h2>
-                  <Select name="type">
-                    <option value={'Milestone'}>Milestone</option>
-                    <option value={'Task'}>Task</option>
-                    <option value={'Epic'}>Epic</option>
-                  </Select>
-                </TypeRow>
-                <AssigneeRow>
-                  <h2>Исполнитель</h2>
-                  <Select name="assignee">
-                    {assignees.map((assignee) => (
-                      <option value={assignee.id}>{assignee.login}</option>
-                    ))}
-                  </Select>
-                </AssigneeRow>
-              </ColumnOne>
-              <ColumnTwo>
-                <DeadlineRow>
-                  <h2>Срок выполнения</h2>
-                  <Input type="date" name="deadline" placeholder='20.09.2024' />
-                </DeadlineRow>
-              </ColumnTwo>
-            </Columns>
-            <Description>
-              <h2>Описание</h2>
-              <TextArea name="description" placeholder='Введите текст'></TextArea>
-              <Buttons>
-                <ButtonGrey type="submit">Сохранить</ButtonGrey>
-                {/* Возвращаемся на предыдущую страницу */}
-                <ButtonGrey onClick={() => navigate(-1)}>Отменить</ButtonGrey>
-              </Buttons>
-            </Description>
+                    </Columns>
 
-          </TaskDetails>
-        </Form>
-      </TaskContent>
-    </TaskContainer>
-  );
+                    <Description>
+                        <h2>Описание</h2>
+                        <TextArea placeholder='Введите текст'></TextArea>
+                        <Buttons>
+                            <ButtonGrey>Сохранить</ButtonGrey>
+                            <ButtonGrey>Удалить</ButtonGrey>
+                        </Buttons>
+                    </Description>
+                </TaskDetails>
+            </TaskContent>
+        </TaskContainer>
+    );
 };
 
 export default TaskList;

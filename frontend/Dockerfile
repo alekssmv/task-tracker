@@ -2,15 +2,15 @@
 FROM node:22.7-alpine3.19
 # Set the working directory
 WORKDIR /app
-# Copy the package.json and package-lock.json files
-COPY package*.json ./
-# Install the dependencies
+
+COPY package.json .
+
 RUN npm install
-# Copy the app files
+
+RUN npm i -g serve
+
 COPY . .
-# Build the application using Vite
-RUN npm run build
-# Expose the port
+
 EXPOSE 8080
-# Run the app
-CMD ["npm", "run", "dev"]
+
+CMD [ "npm", "run", "dev" ]
