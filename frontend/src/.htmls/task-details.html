@@ -1,0 +1,236 @@
+<style>
+    .task-details {
+        border-radius: 20px;
+        background-color: #fff;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        align-items: center;
+        justify-content: center;
+        padding: 50px 80px;
+    }
+
+    .task-container {
+        border-radius: 20px;
+        background-color: #d9d9d9;
+        display: flex;
+        width: 100%;
+        max-width: 1200px;
+        flex-direction: column;
+        padding: 21px 19px;
+    }
+
+    .task-header {
+        display: flex;
+        width: 100%;
+        gap: 20px;
+        color: #000;
+        flex-wrap: wrap;
+        font: 400 36px Inter, sans-serif;
+    }
+
+    .task-title {
+        align-self: stretch;
+        border-radius: 20px;
+        background-color: #fff;
+        flex-grow: 1;
+        flex-basis: auto;
+        padding: 10px;
+    }
+
+    .close-button {
+        align-self: stretch;
+        border-radius: 20px;
+        background-color: #fff;
+        padding: 10px;
+    }
+
+    .task-body {
+        border-radius: 20px;
+        background-color: #fffbfb;
+        display: flex;
+        margin-top: 14px;
+        width: 100%;
+        flex-direction: column;
+        padding: 19px 20px;
+    }
+
+    .task-info {
+        display: flex;
+        gap: 20px;
+    }
+
+    .info-column {
+        display: flex;
+        flex-direction: column;
+        line-height: normal;
+        width: 50%;
+    }
+
+    .info-item {
+        display: flex;
+        margin-top: 10px;
+        width: 100%;
+        color: #000;
+        font: 400 32px Inter, sans-serif;
+    }
+
+    .info-label {
+        align-self: stretch;
+        border-radius: 20px;
+        padding: 10px;
+    }
+
+    .info-value {
+        align-self: stretch;
+        border-radius: 20px;
+        background-color: #d9d9d9;
+        padding: 10px;
+    }
+
+    .task-type {
+        background-color: #8292ff;
+    }
+
+    .task-status {
+        background-color: rgba(255, 234, 0, 0.5);
+    }
+
+    .task-description-title {
+        align-self: start;
+        border-radius: 20px;
+        background-color: #d9d9d9;
+        margin-top: 16px;
+        color: #000;
+        padding: 10px 9px;
+        font: 400 36px Inter, sans-serif;
+    }
+
+    .task-description-content {
+        align-self: stretch;
+        width: 1120px;
+        min-height: 295px;
+        color: #000;
+        font: 400 32px Inter, sans-serif;
+    }
+
+    .task-actions {
+        align-self: end;
+        display: flex;
+        width: 676px;
+        max-width: 100%;
+        gap: 20px;
+        color: #000;
+        flex-wrap: wrap;
+        font: 400 32px Inter, sans-serif;
+    }
+
+    .action-button {
+        align-self: stretch;
+        border-radius: 20px;
+        background-color: #d9d9d9;
+        min-height: 60px;
+        padding: 11px 10px;
+    }
+
+    .delete-button {
+        width: 130px;
+    }
+
+    @media (max-width: 991px) {
+        .task-details {
+            padding: 0 20px;
+        }
+
+        .task-container {
+            max-width: 100%;
+        }
+
+        .task-header {
+            max-width: 100%;
+            margin-right: 3px;
+        }
+
+        .task-body {
+            max-width: 100%;
+        }
+
+        .task-info {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0;
+        }
+
+        .info-column {
+            width: 100%;
+            margin-left: 0;
+            margin-top: 40px;
+        }
+
+        .info-item {
+            max-width: 100%;
+        }
+
+        .task-description-title {
+            margin-left: 3px;
+        }
+
+        .task-description-content {
+            max-width: 100%;
+        }
+    }
+</style>
+
+<section class="task-details">
+    <div class="task-container">
+        <header class="task-header">
+            <h1 class="task-title">Название задачи</h1>
+            <button class="close-button">Закрыть</button>
+        </header>
+        <div class="task-body">
+            <div class="task-info">
+                <div class="info-column">
+                    <div class="info-item">
+                        <span class="info-label">Тип задачи:</span>
+                        <span class="info-value task-type">Task</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Статус задачи:</span>
+                        <span class="info-value task-status">В работе</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Исполнитель:</span>
+                        <span class="info-value">Иванов И.И.</span>
+                    </div>
+                </div>
+                <div class="info-column">
+                    <div class="info-item">
+                        <span class="info-label">Срок выполнения:</span>
+                        <span class="info-value">28.08.2024</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Дата создания:</span>
+                        <span class="info-value">01.08.2024</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Прогресс выполнения:</span>
+                        <span class="info-value">50%</span>
+                    </div>
+                </div>
+            </div>
+            <h2 class="task-description-title">Описание задачи</h2>
+            <p class="task-description-content">
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus consectetur in turpis ac aliquet.
+                Maecenas ornare cursus lorem, id faucibus arcu tincidunt eget. Etiam at condimentum tortor, sit amet
+                ultrices est. Pellentesque viverra vitae tellus quis suscipit. Integer aliquet urna consectetur sapien
+                vestibulum sagittis. Fusce nec euismod lorem, vitae euismod nisl. Nunc molestie mattis elit, rutrum
+                volutpat sapien semper id.
+            </p>
+            <div class="task-actions">
+                <button class="action-button">Журнал работ</button>
+                <button class="action-button">Редактировть</button>
+                <button class="action-button delete-button">Удалить</button>
+            </div>
+        </div>
+    </div>
+</section>

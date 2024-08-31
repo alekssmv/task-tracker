@@ -5,11 +5,10 @@ services:
     frontend:
         build:
             context: ./frontend
-        image: react
         ports:
-            - "3000:3000"
+            - "3000:8080"
         volumes:
-            - ./frontend:/app
+            - ./frontend:/frontend
 
     backend:
         build:

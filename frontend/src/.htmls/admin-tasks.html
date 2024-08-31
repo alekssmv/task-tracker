@@ -1,0 +1,484 @@
+<style>
+    .task-list-container {
+      border-radius: 20px;
+      background-color: #fff;
+      display: flex;
+      gap: 20px;
+      overflow: hidden;
+      flex-wrap: wrap;
+      padding: 50px 80px 50px 20px;
+    }
+    
+    @media (max-width: 991px) {
+      .task-list-container {
+        padding-right: 20px;
+      }
+    }
+    
+    .task-icon {
+      aspect-ratio: 1;
+      object-fit: contain;
+      object-position: center;
+      width: 60px;
+      border-radius: 20px;
+      align-self: start;
+    }
+    
+    .task-content {
+      border-radius: 20px;
+      background-color: #d9d9d9;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex-grow: 1;
+      flex-basis: 0;
+      width: fit-content;
+      padding: 20px 17px 32px;
+    }
+    
+    @media (max-width: 991px) {
+      .task-content {
+        max-width: 100%;
+      }
+    }
+    
+    .task-header {
+      gap: 20px;
+      display: flex;
+    }
+    
+    @media (max-width: 991px) {
+      .task-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+      }
+    }
+    
+    .task-title-column {
+      display: flex;
+      flex-direction: column;
+      line-height: normal;
+      width: 27%;
+      margin-left: 0;
+    }
+    
+    @media (max-width: 991px) {
+      .task-title-column {
+        width: 100%;
+      }
+    }
+    
+    .task-title-wrapper {
+      display: flex;
+      width: 100%;
+      flex-direction: column;
+      color: #000;
+      font: 400 36px Inter, sans-serif;
+    }
+    
+    @media (max-width: 991px) {
+      .task-title-wrapper {
+        margin-top: 20px;
+      }
+    }
+    
+    .task-list-title {
+      align-self: start;
+      border-radius: 20px;
+      background-color: #d9d9d9;
+      padding: 10px;
+    }
+    
+    .task-name {
+      align-self: stretch;
+      border-radius: 20px;
+      background-color: #fff;
+      margin-top: 20px;
+      padding: 10px;
+    }
+    
+    .task-filter-column {
+      display: flex;
+      flex-direction: column;
+      line-height: normal;
+      width: 73%;
+      margin-left: 20px;
+    }
+    
+    @media (max-width: 991px) {
+      .task-filter-column {
+        width: 100%;
+      }
+    }
+    
+    .task-filter-wrapper {
+      display: flex;
+      width: 100%;
+      flex-direction: column;
+      color: #000;
+      font: 400 36px Inter, sans-serif;
+    }
+    
+    @media (max-width: 991px) {
+      .task-filter-wrapper {
+        max-width: 100%;
+        margin-top: 20px;
+      }
+    }
+    
+    .task-actions {
+      align-self: end;
+      display: flex;
+      width: 662px;
+      max-width: 100%;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .filter-button,
+    .create-task-button {
+      align-self: stretch;
+      border-radius: 20px;
+      background-color: #fff;
+      padding: 10px;
+      flex-grow: 1;
+      flex-basis: auto;
+    }
+    
+    .task-filters {
+      display: flex;
+      margin-top: 20px;
+      width: 100%;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    
+    @media (max-width: 991px) {
+      .task-filters {
+        max-width: 100%;
+      }
+    }
+    
+    .filter-type,
+    .filter-assignee,
+    .filter-progress,
+    .filter-deadline {
+      align-self: stretch;
+      border-radius: 20px;
+      background-color: #fff;
+      padding: 10px;
+    }
+    
+    .filter-type {
+      width: 204px;
+      text-align: center;
+    }
+    
+    .task-item {
+      border-radius: 20px;
+      background-color: #fff;
+      margin-top: 20px;
+      overflow: hidden;
+      padding: 18px 30px;
+    }
+    
+    @media (max-width: 991px) {
+      .task-item {
+        max-width: 100%;
+        padding-right: 20px;
+      }
+    }
+    
+    .task-details {
+      gap: 20px;
+      display: flex;
+    }
+    
+    @media (max-width: 991px) {
+      .task-details {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+      }
+    }
+    
+    .task-name-column {
+      display: flex;
+      flex-direction: column;
+      line-height: normal;
+      width: 43%;
+      margin-left: 0;
+    }
+    
+    @media (max-width: 991px) {
+      .task-name-column {
+        width: 100%;
+      }
+    }
+    
+    .task-name-wrapper {
+      display: flex;
+      width: 100%;
+      gap: 19px;
+      color: #000;
+      font: 400 36px Inter, sans-serif;
+    }
+    
+    @media (max-width: 991px) {
+      .task-name-wrapper {
+        max-width: 100%;
+        margin-top: 40px;
+      }
+    }
+    
+    .task-name-text {
+      align-self: stretch;
+      border-radius: 20px;
+      background-color: #d9d9d9;
+      padding: 10px;
+      flex-grow: 1;
+      flex-basis: auto;
+    }
+    
+    .task-type {
+      align-self: stretch;
+      border-radius: 20px;
+      padding: 10px;
+    }
+    
+    .task-type-task {
+      background-color: #8292ff;
+    }
+    
+    .task-type-milestone {
+      background-color: #ffc482;
+    }
+    
+    .task-type-epic {
+      background-color: #ff82f2;
+    }
+    
+    .task-assignee-column {
+      display: flex;
+      flex-direction: column;
+      line-height: normal;
+      width: 37%;
+      margin-left: 20px;
+    }
+    
+    @media (max-width: 991px) {
+      .task-assignee-column {
+        width: 100%;
+      }
+    }
+    
+    .task-assignee-wrapper {
+      display: flex;
+      width: 100%;
+      gap: 20px;
+      color: #000;
+      justify-content: space-between;
+      font: 400 36px Inter, sans-serif;
+    }
+    
+    @media (max-width: 991px) {
+      .task-assignee-wrapper {
+        margin-top: 40px;
+      }
+    }
+    
+    .task-assignee {
+      align-self: stretch;
+      border-radius: 20px;
+      background-color: #d9d9d9;
+      padding: 10px;
+    }
+    
+    .task-progress {
+      align-self: stretch;
+      border-radius: 20px;
+      padding: 10px;
+    }
+    
+    .task-progress-0 {
+      background-color: rgba(255, 0, 0, 0.5);
+    }
+    
+    .task-progress-25 {
+      background-color: rgba(255, 234, 0, 0.5);
+    }
+    
+    .task-progress-50 {
+      background-color: rgba(255, 234, 0, 0.5);
+    }
+    
+    .task-progress-100 {
+      background-color: rgba(42, 255, 0, 0.5);
+    }
+    
+    .task-deadline-column {
+      display: flex;
+      flex-direction: column;
+      line-height: normal;
+      width: 20%;
+      margin-left: 20px;
+    }
+    
+    @media (max-width: 991px) {
+      .task-deadline-column {
+        width: 100%;
+      }
+    }
+    
+    .task-deadline {
+      align-self: stretch;
+      border-radius: 20px;
+      background-color: #d9d9d9;
+      color: #000;
+      width: 100%;
+      padding: 10px;
+      font: 400 36px Inter, sans-serif;
+    }
+    
+    @media (max-width: 991px) {
+      .task-deadline {
+        margin-top: 40px;
+      }
+    }
+    
+    .task-deadline-overdue {
+      background-color: rgba(255, 0, 0, 0.5);
+    }
+    
+    .visually-hidden {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    </style>
+    
+    <section class="task-list-container">
+      <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/d9b181665cef3519f4db26e5e0cb045b6c201526ddef965fc616216ce059d770?placeholderIfAbsent=true&apiKey=70365a67dfd4494d88dc472fd7a75ab8" alt="" class="task-icon" />
+      <div class="task-content">
+        <header class="task-header">
+          <div class="task-title-column">
+            <div class="task-title-wrapper">
+              <h2 class="task-list-title">Список задач:</h2>
+              <div class="task-name">Название</div>
+            </div>
+          </div>
+          <div class="task-filter-column">
+            <div class="task-filter-wrapper">
+              <div class="task-actions">
+                <button class="filter-button">Настроить фильтр</button>
+                <button class="create-task-button">Создать задачу</button>
+              </div>
+              <div class="task-filters">
+                <div class="filter-type">Тип</div>
+                <div class="filter-assignee">Исполнитель</div>
+                <div class="filter-progress">Прогресс</div>
+                <div class="filter-deadline">Сроки</div>
+              </div>
+            </div>
+          </div>
+        </header>
+        <article class="task-item">
+          <div class="task-details">
+            <div class="task-name-column">
+              <div class="task-name-wrapper">
+                <div class="task-name-text">Название задачи</div>
+                <div class="task-type task-type-task">Task</div>
+              </div>
+            </div>
+            <div class="task-assignee-column">
+              <div class="task-assignee-wrapper">
+                <div class="task-assignee">Иванов И.И.</div>
+                <div class="task-progress task-progress-50">50%</div>
+              </div>
+            </div>
+            <div class="task-deadline-column">
+              <div class="task-deadline">28.08.2024</div>
+            </div>
+          </div>
+        </article>
+        <article class="task-item">
+          <div class="task-details">
+            <div class="task-name-column">
+              <div class="task-name-wrapper">
+                <div class="task-name-text">Название задачи</div>
+                <div class="task-type task-type-milestone">Milestone</div>
+                <div class="task-assignee">Петров И.В.</div>
+              </div>
+            </div>
+            <div class="task-assignee-column">
+              <div class="task-assignee-wrapper">
+                <div class="task-progress task-progress-25">25%</div>
+                <div class="task-deadline">01.10.2024</div>
+              </div>
+            </div>
+          </div>
+        </article>
+        <article class="task-item">
+          <div class="task-details">
+            <div class="task-name-column">
+              <div class="task-name-wrapper">
+                <div class="task-name-text">Название задачи</div>
+                <div class="task-type task-type-task">Task</div>
+              </div>
+            </div>
+            <div class="task-assignee-column">
+              <div class="task-assignee-wrapper">
+                <div class="task-assignee">Новиков С.Т.</div>
+                <div class="task-progress task-progress-0">0%</div>
+              </div>
+            </div>
+            <div class="task-deadline-column">
+              <div class="task-deadline task-deadline-overdue">20.08.2024</div>
+            </div>
+          </div>
+        </article>
+        <article class="task-item">
+          <div class="task-details">
+            <div class="task-name-column">
+              <div class="task-name-wrapper">
+                <div class="task-name-text">Название задачи</div>
+                <div class="task-type task-type-epic">Epic</div>
+              </div>
+            </div>
+            <div class="task-assignee-column">
+              <div class="task-assignee-wrapper">
+                <div class="task-assignee">Новиков С.Т.</div>
+                <div class="task-progress task-progress-100">100%</div>
+              </div>
+            </div>
+            <div class="task-deadline-column">
+              <div class="task-deadline">01.09.2024</div>
+            </div>
+          </div>
+        </article>
+        <article class="task-item">
+          <div class="task-details">
+            <div class="task-name-column">
+              <div class="task-name-wrapper">
+                <div class="task-name-text">Название задачи</div>
+                <div class="task-type task-type-milestone">Milestone</div>
+                <div class="task-assignee">Иванов И.И.</div>
+              </div>
+            </div>
+            <div class="task-assignee-column">
+              <div class="task-assignee-wrapper">
+                <div class="task-progress task-progress-50">50%</div>
+                <div class="task-deadline">17.09.2024</div>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>

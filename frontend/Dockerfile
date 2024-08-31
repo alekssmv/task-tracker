@@ -8,7 +8,9 @@ COPY package*.json ./
 RUN npm install
 # Copy the app files
 COPY . .
-# Build the app
+# Build the application using Vite
 RUN npm run build
+# Expose the port
+EXPOSE 8080
 # Run the app
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]

@@ -1,0 +1,286 @@
+<style>
+    .task-completion {
+      border-radius: 20px;
+      background-color: #fff;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      align-items: center;
+      justify-content: center;
+      padding: 50px 80px;
+    }
+  
+    .task-card {
+      border-radius: 20px;
+      background-color: #d9d9d9;
+      display: flex;
+      width: 100%;
+      max-width: 1200px;
+      flex-direction: column;
+      padding: 20px;
+    }
+  
+    .task-header {
+      display: flex;
+      width: 100%;
+      gap: 20px;
+      color: #000;
+      flex-wrap: wrap;
+      font: 400 36px Inter, sans-serif;
+    }
+  
+    .task-title {
+      align-self: stretch;
+      border-radius: 20px;
+      background-color: #fff;
+      flex-grow: 1;
+      flex-basis: auto;
+      padding: 10px;
+    }
+  
+    .close-button {
+      align-self: stretch;
+      border-radius: 20px;
+      background-color: #fff;
+      padding: 10px;
+    }
+  
+    .task-details {
+      border-radius: 20px;
+      background-color: #fffbfb;
+      display: flex;
+      margin-top: 16px;
+      width: 100%;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 23px 380px;
+    }
+  
+    .details-container {
+      align-self: stretch;
+    }
+  
+    .details-row {
+      gap: 20px;
+      display: flex;
+    }
+  
+    .details-column {
+      display: flex;
+      flex-direction: column;
+      line-height: normal;
+      width: 45%;
+      margin-left: 0;
+    }
+  
+    .task-info {
+      display: flex;
+      width: 100%;
+      flex-direction: column;
+      color: #000;
+      font: 400 32px Inter, sans-serif;
+    }
+  
+    .info-row {
+      display: flex;
+      width: 289px;
+      max-width: 100%;
+    }
+  
+    .info-label {
+      align-self: stretch;
+      border-radius: 20px;
+      padding: 10px;
+    }
+  
+    .info-value {
+      align-self: stretch;
+      border-radius: 20px;
+      gap: 10px;
+      padding: 10px;
+    }
+  
+    .epic-tag {
+      background-color: rgba(255, 130, 242, 1);
+    }
+  
+    .status-tag {
+      background-color: rgba(255, 0, 0, 0.5);
+    }
+  
+    .date-column {
+      display: flex;
+      flex-direction: column;
+      line-height: normal;
+      width: 55%;
+      margin-left: 20px;
+    }
+  
+    .date-info {
+      display: flex;
+      width: 100%;
+      flex-direction: column;
+      color: #000;
+      font: 400 32px Inter, sans-serif;
+    }
+  
+    .date-row {
+      display: flex;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+  
+    .date-value {
+      align-self: stretch;
+      border-radius: 20px;
+      background-color: #d9d9d9;
+      padding: 10px;
+    }
+  
+    .progress-title {
+      align-self: stretch;
+      border-radius: 20px;
+      background-color: #fff;
+      margin-top: 18px;
+      color: #000;
+      padding: 10px;
+      font: 400 32px Inter, sans-serif;
+    }
+  
+    .progress-bar {
+      display: flex;
+      width: 502px;
+      max-width: 100%;
+      gap: 20px;
+      color: #000;
+      flex-wrap: wrap;
+      margin: 12px 0 -76px;
+      font: 400 32px Inter, sans-serif;
+    }
+  
+    .progress-step {
+      align-self: stretch;
+      border-radius: 20px;
+      gap: 10px;
+      padding: 10px;
+    }
+  
+    .progress-complete {
+      background-color: rgba(42, 255, 0, 0.5);
+    }
+  
+    @media (max-width: 991px) {
+      .task-completion {
+        padding: 0 20px;
+      }
+  
+      .task-card {
+        max-width: 100%;
+      }
+  
+      .task-header {
+        max-width: 100%;
+      }
+  
+      .close-button {
+        white-space: initial;
+      }
+  
+      .task-details {
+        max-width: 100%;
+        padding: 0 20px 100px;
+      }
+  
+      .details-container {
+        max-width: 100%;
+      }
+  
+      .details-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+      }
+  
+      .details-column {
+        width: 100%;
+      }
+  
+      .task-info {
+        margin-top: 40px;
+      }
+  
+      .epic-tag,
+      .status-tag {
+        white-space: initial;
+      }
+  
+      .date-column {
+        width: 100%;
+      }
+  
+      .date-info {
+        max-width: 100%;
+        margin-top: 40px;
+      }
+  
+      .date-row {
+        max-width: 100%;
+      }
+  
+      .date-value {
+        white-space: initial;
+      }
+  
+      .progress-bar {
+        margin-bottom: 10px;
+        white-space: initial;
+      }
+    }
+  </style>
+  
+  <section class="task-completion">
+    <article class="task-card">
+      <header class="task-header">
+        <h1 class="task-title">Название задачи</h1>
+        <button class="close-button">Закрыть</button>
+      </header>
+      <div class="task-details">
+        <div class="details-container">
+          <div class="details-row">
+            <div class="details-column">
+              <div class="task-info">
+                <div class="info-row">
+                  <span class="info-label">Тип задачи:</span>
+                  <span class="info-value epic-tag">Epic</span>
+                </div>
+                <div class="info-row">
+                  <span class="info-label">Статус задачи:</span>
+                  <span class="info-value status-tag">Создана</span>
+                </div>
+              </div>
+            </div>
+            <div class="date-column">
+              <div class="date-info">
+                <div class="date-row">
+                  <span class="info-label">Срок выполнения:</span>
+                  <span class="date-value">30.08.2024</span>
+                </div>
+                <div class="date-row">
+                  <span class="info-label">Дата создания:</span>
+                  <span class="date-value">01.08.2024</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <h2 class="progress-title">Прогресс выполнения</h2>
+        <div class="progress-bar">
+          <span class="progress-step">0%</span>
+          <span class="progress-step progress-complete">25%</span>
+          <span class="progress-step progress-complete">50%</span>
+          <span class="progress-step progress-complete">75%</span>
+          <span class="progress-step progress-complete">100%</span>
+        </div>
+      </div>
+    </article>
+  </section>
