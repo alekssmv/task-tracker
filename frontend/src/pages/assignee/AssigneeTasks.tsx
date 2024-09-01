@@ -1,312 +1,185 @@
 import styled from 'styled-components';
+import Buttons from '../../components/Buttons';
+import { useEffect, useState } from 'react';
+import TaskInterface from '../../stores/interfaces/TaskInterface';
+import tasksStore from '../../stores/TasksStore';
+import userStore from '../../stores/UserStore';
+import { useNavigate } from 'react-router-dom';
 
-const ColumnMinWidths = {
-    name: 200,
-    type: 140,
-    assignee: 200,
-    progress: 100,
-    deadline: 200
-}
-
-const TaskListContainer = styled.section`
-    border-radius: 20px;
-    background-color: #fff;
+// Styled Components
+const TaskBoard = styled.section`
     display: flex;
-    min-width: 1200px;
+    flex-direction: row;
     gap: 20px;
-    overflow: hidden;
-    flex-wrap: wrap;
-    padding: 150px 350px;
+`;
+
+const MainContainer = styled.section`
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+`;
+
+const RowContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+`;
+
+const UserLogin = styled.div`
+    gap: 10px;
+    margin-top: 200px;
+    margin-right: 900px;
+`;
+
+const TaskContainer = styled.div`
     margin: 0 auto;
-`;
-
-const TaskIcon = styled.img`
-    aspect-ratio: 1;
-    object-fit: contain;
-    object-position: center;
-    width: 60px;
-    border-radius: 20px;
-    align-self: start;
-`;
-
-const TaskContent = styled.div`
-    border-radius: 20px;
+    margin-right: 1400px;
+    display: flex;
+    justify-content: top;
+    align-items: top;
     background-color: #d9d9d9;
+    max-width: 1200px;
+    border-radius: 20px;
+`;
+
+const ButtonsContainer = styled.div`
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    flex-grow: 1;
-    flex-basis: 0;
-    width: fit-content;
-    padding: 20px 30px 32px;
-`;
-
-const TaskHeader = styled.header`
-    display: flex;
-    flex-direction: column;
-    align-self: stretch;
-`;
-
-const TaskHeaderRow = styled.div`
-    align-items: center;
-    display: flex;
-    flex-direction: row;
-    margin-bottom: 20px;
-`;
-
-const TaskListTitle = styled.h2`
-    align-self: start;
-    border-radius: 20px;
-    background-color: #d9d9d9;
-    padding: 10px;
-`;
-
-const TaskActions = styled.div`
-    margin-left: auto;
-    display: flex;
     gap: 20px;
-    flex-wrap: wrap;
+    margin-left: 1300px;
+    margin-right: 10px;
+    margin-bottom: 125px;
 `;
 
-const Button = styled.button`
-    align-self: stretch;
-    border-radius: 30px;
-    background-color: #fff;
-    // make button font bigger
-    font-size: 18px;
-    border: none;
-
-    padding: 15px;
-    flex-grow: 1;
-    flex-basis: auto;
+const TaskColumn = styled.div`
+  display: flex;
+  flex-direction: column;
+  line-height: normal;
+  padding: 10px;
+  min-width: 300px;
+  margin-left: 0;
 `;
 
-// Filters
-
-const TaskFilterRow = styled.div`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-direction: row;
+const ColumnContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
 `;
 
-const Filter = styled.div`
-    align-self: stretch;
-    border-radius: 20px;
-    background-color: #fff;
-    padding: 10px;
+const ColumnHeader = styled.div`
+  width: 100%;
+  padding: 5px;
+  border-radius: 30px;
+  text-align: center;
 `;
 
-const FilterTitle = styled(Filter)`
-    min-width: ${ColumnMinWidths.name}px;
-    text-align: center;
+const CreatedHeader = styled(ColumnHeader)`
+  background-color: rgba(255, 0, 0, 0.5);
 `;
 
-const FilterType = styled(Filter)`
-    min-width: ${ColumnMinWidths.type}px;
-    text-align: center;
+const InProgressHeader = styled(ColumnHeader)`
+  background-color: rgba(255, 234, 0, 0.5);
 `;
 
-const FilterProgress = styled(Filter)`
-    min-width: ${ColumnMinWidths.progress}px;
-    text-align: center;
+const CompletedHeader = styled(ColumnHeader)`
+  background-color: rgba(42, 255, 0, 0.5);
 `;
 
-const FilterAssignee = styled(Filter)`
-    min-width: ${ColumnMinWidths.assignee}px;
-    text-align: center;
+const TaskCard = styled.article`
+  cursor: pointer;
+  border-radius: 20px;
+  background-color: #fffbfb;
+  min-width: 300px;
+
 `;
 
-const FilterDeadline = styled(Filter)`
-    min-width: ${ColumnMinWidths.deadline}px;
-    text-align: center;
+const TaskTitle = styled.h2`
+
 `;
 
-// Task item
-
-const TaskItem = styled.article`
-    border-radius: 30px;
-    background-color: #fff;
-    margin-top: 20px;
-    padding: 10px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    align-self: stretch;
+const TaskDescription = styled.p`
+  color: rgba(0, 0, 0, 0.5);
+  margin-left: 10px;
 `;
 
-const TaskNameColumn = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    line-height: normal;
-    min-width: 210px;
-`;
+// React Component
+const AssigneeTasks = () => {
+    const [tasks, setTasks] = useState<TaskInterface[]>([]);
+    const navigate = useNavigate();
+    
+    const goToAssigneeTask = (id: number) => {
+        navigate(`/assignee/task/${id}`);
+    };
 
-const TaskTypeColumn = styled.div`
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    line-height: normal;
-    min-width: 100px;
-    text-align: center;
-`;
+    useEffect(() => {
+        const fetchTasks = async () => {
+            setTasks(tasksStore.getTasks());
+        };
+        fetchTasks();
+    }, [tasks]);
 
-const TaskAssigneeColumn = styled.div`
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-width: 210px;
-    max-width: 210px;
-    text-align: center;
-`;
+    return (
+        <MainContainer>
 
-const TaskProgressColumn = styled.div`
-    display: flex;
-    flex-direction: column;
-    text-align: center;
-    min-width: 75px;
-    justify-content: center;
-    line-height: normal;
-`;
+            <UserLogin>
+                <h2>{userStore.getLogin()}</h2>
+            </UserLogin>
+            <RowContainer>
+                <ButtonsContainer>
+                    <Buttons />
+                </ButtonsContainer>
 
-const TaskDeadlineColumn = styled.div`
-    display: flex;
-    flex-direction: column;
-    line-height: normal;
-    min-width: 210px;
-    max-width: 210px;
-`;
+                <TaskContainer>
+                    <TaskBoard>
+                        <TaskColumn>
+                            <ColumnContent>
+                                <CreatedHeader>Создана</CreatedHeader>
+                                {tasks
+                                    .filter((task) => task.status === 'Создана')
+                                    .map((task) => (
+                                        <TaskCard key={task.id} onClick={() => goToAssigneeTask(task.id)}>
+                                            <TaskTitle>{task.title}</TaskTitle>
+                                            <TaskDescription>{task.description}</TaskDescription>
+                                        </TaskCard>
+                                    ))}
+                            </ColumnContent>
+                        </TaskColumn>
 
-// Task item content
+                        <TaskColumn>
+                            <ColumnContent>
+                                <InProgressHeader>В работе</InProgressHeader>
+                                {tasks
+                                    .filter((task) => task.status === 'В работе')
+                                    .map((task) => (
+                                        <TaskCard key={task.id} onClick={() => goToAssigneeTask(task.id)}>
+                                            <TaskTitle>{task.title}</TaskTitle>
+                                            <TaskDescription>{task.description}</TaskDescription>
+                                        </TaskCard>
+                                    ))}
+                            </ColumnContent>
+                        </TaskColumn>
 
-interface TaskDeadlineProps {
-    overdue: boolean;
+                        <TaskColumn>
+                            <ColumnContent>
+                                <CompletedHeader>Завершена</CompletedHeader>
+                                {tasks
+                                    .filter((task) => task.status === 'Завершена')
+                                    .map((task) => (
+                                        <TaskCard key={task.id} onClick={() => goToAssigneeTask(task.id)}>
+                                            <TaskTitle>{task.title}</TaskTitle>
+                                            <TaskDescription>{task.description}</TaskDescription>
+                                        </TaskCard>
+                                    ))}
+                            </ColumnContent>
+                        </TaskColumn>
+                    </TaskBoard>
+                </TaskContainer>
+            </RowContainer>
+        </MainContainer>)
 }
 
-const TaskName = styled.div`
-    display: flex;
-    justify-content: center;
-    border-radius: 20px;
-
-    background-color: #d9d9d9;
-    padding: 10px;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    // overflow: hidden;
-`;
-
-const TaskType = styled.div`
-    align-self: stretch;
-    border-radius: 20px;
-    padding: 10px;
-    background-color: ${(props) => props.color};
-`;
-
-const TaskAssignee = styled.div`
-    align-self: stretch;
-    border-radius: 20px;
-    background-color: #d9d9d9;
-    padding: 10px;
-
-    white-space: nowrap;
-    text-overflow: ellipsis;
-`;
-
-const TaskProgress = styled.div`
-    align-self: stretch;
-    border-radius: 20px;
-    padding: 10px;
-    background-color: ${(props) => props.color};
-`;
-
-
-const TaskDeadline = styled.div<TaskDeadlineProps>`
-  align-self: stretch;
-  border-radius: 20px;
-  background-color: ${(props) => (props.overdue ? 'rgba(255, 0, 0, 0.5)' : '#d9d9d9')};
-  text-align: center;
-  color: #000;
-  padding: 10px;
-`;
-
-const TaskList = () => {
-    return (
-        <TaskListContainer>
-            <TaskIcon src="/home.svg" alt="" />
-            <TaskContent>
-                <TaskHeader>
-                    <TaskHeaderRow>
-                        <TaskListTitle>Список задач:</TaskListTitle>
-                        <TaskActions>
-                            <Button>Настроить фильтр</Button>
-                            <Button>Создать задачу</Button>
-                        </TaskActions>
-                    </TaskHeaderRow>
-                    <TaskFilterRow>
-                        <FilterTitle>Название</FilterTitle>
-                        <FilterType>Тип</FilterType>
-                        <FilterAssignee>Исполнитель</FilterAssignee>
-                        <FilterProgress>Прогресс</FilterProgress>
-                        <FilterDeadline>Сроки</FilterDeadline>
-                    </TaskFilterRow>
-                </TaskHeader>
-                {[{
-                    name: 'Название задачи',
-                    type: { label: 'Task', color: '#8292ff' },
-                    assignee: 'Иванов И.И.',
-                    progress: { label: '50%', color: 'rgba(255, 234, 0, 0.5)' },
-                    deadline: { date: '20.09.2024', overdue: true }
-                }, {
-                    name: 'Название задачи 2',
-                    type: { label: 'Feature', color: '#ffae47' },
-                    assignee: 'Петров П.П.',
-                    progress: { label: '25%', color: 'rgba(255, 0, 0, 0.5)' },
-                    deadline: { date: '15.10.2024', overdue: false }
-                }, {
-                    name: 'Название задачи 3',
-                    type: { label: 'Bug', color: '#e53935' },
-                    assignee: 'Сидоров С.С.',
-                    progress: { label: '75%', color: 'rgba(0, 255, 0, 0.5)' },
-                    deadline: { date: '05.11.2024', overdue: false }
-                }, {
-                    name: 'Название задачи 4',
-                    type: { label: 'Release', color: '#3f51b5' },
-                    assignee: 'Кузнецов К.К.',
-                    progress: { label: '100%', color: 'rgba(0, 0, 255, 0.5)' },
-                    deadline: { date: '01.12.2024', overdue: false }
-                }, {
-                    name: 'Название задачи 5',
-                    type: { label: 'Feature', color: '#ffae47' },
-                    assignee: 'Петров П.П.',
-                    progress: { label: '0%', color: 'rgba(255, 0, 0, 0.5)' },
-                    deadline: { date: '05.01.2025', overdue: false }
-                },].map(task => (
-                    <TaskItem key={task.name}>
-                        <TaskNameColumn >
-                            <TaskName>{task.name}</TaskName>
-                        </TaskNameColumn>
-                        <TaskTypeColumn>
-                            <TaskType color={task.type.color}>{task.type.label}</TaskType>
-                        </TaskTypeColumn>
-                        <TaskAssigneeColumn>
-                            <TaskAssignee>{task.assignee}</TaskAssignee>
-                        </TaskAssigneeColumn>
-                        <TaskProgressColumn>
-                            <TaskProgress color={task.progress.color}>{task.progress.label}</TaskProgress>
-                        </TaskProgressColumn>
-                        <TaskDeadlineColumn>
-                            <TaskDeadline overdue={task.deadline.overdue}>{task.deadline.date}</TaskDeadline>
-                        </TaskDeadlineColumn>
-                    </TaskItem>
-                ))}
-            </TaskContent>
-        </TaskListContainer>
-    );
-};
-
-export default TaskList;
+export default AssigneeTasks;

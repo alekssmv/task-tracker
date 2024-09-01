@@ -1,12 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import Api from '../../utils/Api';
+import api from '../../utils/Api';
+import tasksStore from '../../stores/TasksStore';
+import AssigneeInterface from '../../stores/interfaces/AssigneeInterface';
+import ButtonsComp from '../../components/Buttons';
 
 const TaskContainer = styled.section`
     border-radius: 20px;
     background-color: #fff;
     display: flex;
+    max-width: 1200px;
     min-width: 1200px;
     gap: 20px;
     overflow: hidden;
@@ -24,9 +28,11 @@ const ButtonWhite = styled.button`
     padding: 15px;
     flex-grow: 1;
     flex-basis: auto;
+    cursor: pointer;
 `;
 
 const ButtonGrey = styled.button`
+    cursor: pointer;
     align-self: stretch;
     border-radius: 30px;
     background-color: #d9d9d9;
@@ -37,15 +43,6 @@ const ButtonGrey = styled.button`
     flex-basis: auto;
 `;
 
-const TaskIcon = styled.img`
-    aspect-ratio: 1;
-    object-fit: contain;
-    object-position: center;
-    width: 60px;
-    border-radius: 20px;
-    align-self: start;
-`;
-
 const TextArea = styled.textarea`
     margin-top: 20px;
     align-self: stretch;
@@ -54,11 +51,11 @@ const TextArea = styled.textarea`
     text-align: center;
     color: #000000;
     padding: 14px;
-    max-width: 920px;
+    width: 97%;
     border: none;
+    resize: none;
     outline: none;
     font-size: 18px;
-    resize: none;
 `;
 
 const TaskContent = styled.div`
@@ -218,11 +215,11 @@ const TaskList = () => {
 
   const navigate = useNavigate();
 
-  const [assignees, setAssignees] = useState<string[]>([]);
+  const [assignees, setAssignees] = useState<AssigneeInterface[]>([]);
 
   useEffect(() => {
     async function fetchData() {
-      const response = await Api.getAssignees(localStorage.getItem("access_token")!);
+      const response = await api.getAssignees(localStorage.getItem("access_token")!);
       setAssignees(response);
     }
     fetchData();
@@ -238,21 +235,26 @@ const TaskList = () => {
       deadline: formData.get('deadline')?.toString() || "",
       description: formData.get('description')?.toString() || ""
     };
-    Api.createTask(localStorage.getItem("access_token")!,data);
-    navigate(-1);
+    const response = await api.createTask(localStorage.getItem("access_token")!, data);
+
+    if (response.data) {
+      tasksStore.addTask(response.data);
+      navigate('/admin');
+    }
   };
 
   return (
     <TaskContainer>
-      <TaskIcon src="/home.svg" alt="" />
+      <ButtonsComp />
       <TaskContent>
+
         <Form onSubmit={handleSubmit}>
           <TaskHeader>
             <TaskHeaderRow>
               <TaskHeaderTitle name='title' placeholder='Название задачи' />
               <TaskActions>
                 {/* Возвращаемся на предыдущую страницу */}
-                <ButtonWhite onClick={() => navigate(-1)}>Закрыть</ButtonWhite>
+                <ButtonWhite onClick={() => navigate('/admin')}>Закрыть</ButtonWhite>
               </TaskActions>
             </TaskHeaderRow>
           </TaskHeader>
@@ -290,7 +292,7 @@ const TaskList = () => {
               <Buttons>
                 <ButtonGrey type="submit">Сохранить</ButtonGrey>
                 {/* Возвращаемся на предыдущую страницу */}
-                <ButtonGrey onClick={() => navigate(-1)}>Отменить</ButtonGrey>
+                <ButtonGrey onClick={(() => navigate('/admin'))}>Отменить</ButtonGrey>
               </Buttons>
             </Description>
 

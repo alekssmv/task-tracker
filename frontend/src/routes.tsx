@@ -3,6 +3,8 @@ import Login from './pages/Login';
 import AdminTasks from './pages/admin/AdminTasks';
 import AdminCreateTask from './pages/admin/CreateTask';
 import Task from './pages/admin/Task';
+import AssigneeTasks from './pages/assignee/AssigneeTasks';
+import TaskAssignee from './pages/assignee/Task';
 
 import AdminRoutes from './utils/AdminRoutes';
 import AssigneeRoutes from './utils/AssigneeRoutes';
@@ -27,6 +29,8 @@ const Router = () => {
 
         {/* Assignee routes */}
         <Route element={<AssigneeRoutes />}>
+          <Route path='/assignee' element={<AssigneeTasks />} />
+          <Route path='/assignee/task/:id' element={<TaskAssignee />} />
         </Route>
 
       </Routes>

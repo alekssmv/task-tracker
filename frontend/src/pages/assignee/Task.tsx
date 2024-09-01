@@ -4,7 +4,6 @@ import tasksStore from '../../stores/TasksStore';
 import TaskInterface from '../../stores/interfaces/TaskInterface';
 import { useEffect, useState } from 'react';
 import api from '../../utils/Api';
-import AssigneeInterface from '../../stores/interfaces/AssigneeInterface';
 import ButtonsComp from '../../components/Buttons';
 
 const StyledButtonsComp = styled.div`
@@ -32,9 +31,11 @@ const ButtonWhite = styled.button`
     padding: 15px;
     flex-grow: 1;
     flex-basis: auto;
+    cursor: pointer;
 `;
 
 const ButtonGrey = styled.button`
+    cursor: pointer;
     align-self: stretch;
     border-radius: 30px;
     background-color: #d9d9d9;
@@ -247,67 +248,37 @@ const Buttons = styled.div`
 const Task = () => {
     const { id } = useParams();
     const [task, setTask] = useState<TaskInterface | any>();
-    const [assignees, setAssignees] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
-        setTask(tasksStore.getTask(Number(id!)));
-        const token = localStorage.getItem('access_token')
-        if (token) {
-            api.getAssignees(token).then(response => {
-                setAssignees(response);
-            });
+        if (id !== undefined) {
+            setTask(tasksStore.getTask(Number(id!)));
         }
+    }, []);
 
-    }, [id]);
     const handleEdit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
 
         const data = {
-            title: formData.get('title')?.toString(),
-            type: formData.get('type')?.toString(),
             status: formData.get('status')?.toString(),
             progress: Number(formData.get('progress')),
-            description: formData.get('description')?.toString(),
-            assignee_id: formData.get('assignee_id')?.toString(),
-            deadline: formData.get('deadline')?.toString(),
-            created: formData.get('created')?.toString()
         };
 
         const token = localStorage.getItem('access_token');
-        api.updateTask(token!, data, Number(id!)).then((response) => {
+        api.updateProgress(token!, data, task?.id).then((response) => {
             if (response.success) {
-                tasksStore.deleteTask(Number(id));
+                tasksStore.deleteTask(task?.id);
                 tasksStore.addTask(response.data);
-                navigate('/admin');
+                navigate('/assignee');
             }
         });
-    };
-
-    const handleDelete = () => {
-        const token = localStorage.getItem('access_token');
-        api.deleteTask(token!, Number(id!)).then((response) => {
-            if (response.success) {
-                tasksStore.deleteTask(Number(id));
-                navigate('/admin');
-            }
-        })
-
     };
 
     /**
      * Для изменения значений формы.
      */
     const handleChange = (attribute: any, event: any) => {
-
-        if (attribute === 'assignee.id') {
-            const assignee = assignees.find((assignee: any) => assignee.id === Number(event.target.value));
-            const updatedTask = { ...task, ['assignee']: assignee };
-            setTask(updatedTask);
-            return;
-        }
-
         const updatedTask = { ...task, [attribute]: event.target.value };
         setTask(updatedTask);
 
@@ -322,7 +293,6 @@ const Task = () => {
                     <TaskHeader>
                         <TaskHeaderRow>
                             <TaskHeaderTitle name='title'
-                                onChange={(event) => handleChange('title', event)}
                                 value={task?.title} placeholder='Название задачи' />
                             <TaskActions>
                                 <ButtonWhite onClick={() => navigate('/admin')}>Закрыть</ButtonWhite>
@@ -333,15 +303,8 @@ const Task = () => {
                         <Columns>
                             <ColumnOne>
                                 <TypeRow>
-
                                     <h2>Тип задачи</h2>
-
-                                    <Select name="type" value={task?.type} onChange={(event) => handleChange('type', event)}>
-                                        <option value={'Milestone'}>Milestone</option>
-                                        <option value={'Task'}>Task</option>
-                                        <option value={'Epic'}>Epic</option>
-                                    </Select>
-
+                                    <Input type="text" name='assignee' value={task?.type} />
                                 </TypeRow>
                                 <StatusRow>
                                     <h2>Статус</h2>
@@ -352,14 +315,8 @@ const Task = () => {
                                     </Select>
                                 </StatusRow>
                                 <AssigneeRow>
-
                                     <h2>Исполнитель</h2>
-                                    <Select name="assignee_id" value={task?.assignee.id} onChange={(event) => handleChange('assignee.id', event)}>
-                                        {assignees.map((assignee: AssigneeInterface) => (
-                                            <option value={assignee.id}>{assignee.login}</option>
-                                        ))};
-                                    </Select>
-
+                                    <Input type="text" name='assignee' value={task?.assignee?.login} />
                                 </AssigneeRow>
                             </ColumnOne>
 
@@ -367,11 +324,11 @@ const Task = () => {
 
                                 <DeadlineRow>
                                     <h2>Срок выполнения</h2>
-                                    <Input type="date" name='deadline' value={task?.deadline?.split('T')[0]} onChange={(event) => handleChange('deadline', event)} />
+                                    <Input type="date" name='deadline' value={task?.deadline?.split('T')[0]} />
                                 </DeadlineRow>
                                 <CreatedRow>
                                     <h2>Создана</h2>
-                                    <Input type="date" name='created' value={task?.created?.split('T')[0]} onChange={(event) => handleChange('created', event)} />
+                                    <Input type="date" name='created' value={task?.created?.split('T')[0]} />
                                 </CreatedRow>
                                 <ProgressRow>
                                     <h2>Прогресс</h2>
@@ -389,10 +346,9 @@ const Task = () => {
 
                         <Description>
                             <h2>Описание</h2>
-                            <TextArea name='description' value={task?.description} onChange={(event) => handleChange('description', event)} placeholder='Введите текст'></TextArea>
+                            <TextArea name='description' value={task?.description} placeholder='Введите текст'></TextArea>
                             <Buttons>
                                 <ButtonGrey type="submit">Сохранить</ButtonGrey>
-                                <ButtonGrey onClick={handleDelete}>Удалить</ButtonGrey>
                             </Buttons>
                         </Description>
                     </TaskDetails>

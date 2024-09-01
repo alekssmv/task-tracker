@@ -3,6 +3,7 @@ import api from '../utils/Api';
 import { FormEvent, useState } from 'react';
 import UserStore from '../stores/UserStore';
 import { useNavigate } from 'react-router-dom';
+import tasksStore from '../stores/TasksStore';
 
 const MainContainer = styled.main`
     border-radius: 20px;
@@ -23,6 +24,7 @@ const UserLabel = styled.h1`
     font-size: 20px;
     align-self: start;
     margin-left: 200px;
+    cursor: pointer;
 `;
 
 const ErrorMessage = styled.div`
@@ -74,6 +76,7 @@ const Button = styled.button`
     padding: 15px;
     text-align: center;
     border: none;
+    cursor: pointer;
 `;
 
 const Form = styled.form`
@@ -84,8 +87,10 @@ const Form = styled.form`
 `;
 
 const Authorization = () => {
-    
+
     const [error, setError] = useState<string | null>(null);
+    const [role, setRole] = useState('assignee');
+
     const navigate = useNavigate();
 
     const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -98,7 +103,7 @@ const Authorization = () => {
             return;
         }
 
-        const response = await api.login(login.value, password.value);
+        const response = await api.login(login.value, password.value, role);
         if (response.success === false) {
             setError(response.message);
         }
@@ -107,17 +112,29 @@ const Authorization = () => {
         UserStore.setRoles(response.roles);
 
         if (response.roles === "admin") {
-            console.log(response.roles)
-            navigate('/admin');
+            api.getAdminTasks(localStorage.getItem('access_token')!).then((response) => {
+                tasksStore.setTasks(response.data);
+                navigate('/admin');
+            })
         }
         if (response.roles === "assignee") {
-            navigate('/assignee');
+            api.getAssigneeTasks(localStorage.getItem('access_token')!).then((response) => {
+                tasksStore.setTasks(response.data);
+                navigate('/assignee');
+            })
         }
     }
+    const handleClick = () => {
+        if (role === 'admin') {
+            setRole('assignee');
+        } else {
+            setRole('admin');
+        }
+    };
 
     return (
         <MainContainer>
-            <UserLabel>Админ</UserLabel>
+            <UserLabel onClick={handleClick}>{role === 'admin' ? 'Администратор' : 'Пользователь'}</UserLabel>
 
             {error && <ErrorMessage>{error}</ErrorMessage>}
 

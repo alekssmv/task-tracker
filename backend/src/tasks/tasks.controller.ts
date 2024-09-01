@@ -1,11 +1,10 @@
-import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Query, Request } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Param, Patch, Post, Put, Query, Request } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { Roles } from 'src/roles/roles.decorator';
 import { TaskAdminDto } from './dto/task.admin.dto';
 import { validate } from 'class-validator';
 import { plainToClass } from 'class-transformer';
 import { UsersService } from 'src/users/users.service';
-import { TaskFilterDto } from './task.filter.dto';
 import { TaskAssigneeDto } from './dto/task.assignee.dto';
 
 @Controller('tasks')
@@ -26,38 +25,18 @@ export class TasksController {
      */
     @Roles(['admin'])
     @Get('admin')
-    adminTasks(@Request() request: any, @Query() querry: any) {
+    async adminTasks(@Request() request: any, @Query() querry: any) {
         const id = Number(request.user.id);
-        if (!querry.sort_by) {
-            return this.tasksService.find({ where: { admin: { id } } });
-        }
-        return this.tasksService.find(
-            {
-                where: { admin: { id } },
-                order: { [querry.sort_by]: querry.sort_order ?? 'ASC' }
-            });
-    }
 
-    /**
-     * Фильтация задач администратора.
-     * @param request 
-     * @param taskFilterDto 
-     * @returns 
-     */
-    @Roles(['admin'])
-    @Get('admin/filter')
-    adminTasksFilter(@Request() request: any, @Query() taskFilterDto: TaskFilterDto) {
-        const assigneeId = taskFilterDto.assignee_id;
-        // remove assignee_id from taskFilterDto
-        delete taskFilterDto.assignee_id;
-        const id = Number(request.user.id);
-        return this.tasksService.find({
-            where: {
-                admin: { id },
-                assignee: { id: assigneeId },
-                ...taskFilterDto
+        // Если нет сортировки.
+        let tasks = null;
+        if (!querry.sort_by) {
+            const tasks = await this.tasksService.findAdminTasks(id);
+            return {
+                success: true,
+                data: tasks,
             }
-        });
+        }
     }
 
     /**
@@ -93,11 +72,25 @@ export class TasksController {
             { where: { id: adminId, roles: 'admin' } });
 
         // Создаем задачу.
-        this.tasksService.create(admin, assignee, taskDto);
+        const task = await this.tasksService.create(admin, assignee, taskDto);
 
         return {
+            success: true,
             message: 'Задача создана',
-            success: true
+            data: {
+                id: task.id,
+                title: task.title,
+                description: task.description,
+                deadline: task.deadline,
+                assignee: {
+                    id: task.assignee.id,
+                    login: task.assignee.login,
+                },
+                type: task.type,
+                progress: task.progress,
+                status: task.status,
+                created: task.created,
+            },
         };
     }
 
@@ -130,7 +123,7 @@ export class TasksController {
      * Изменение задачи администратором.
      */
     @Roles(['admin'])
-    @Patch('admin/:id')
+    @Put('admin/:id')
     async updateTask(
         @Request() request: any,
         @Param('id') taskId: number,
@@ -149,7 +142,6 @@ export class TasksController {
         // Валидация DTO.
         const taskDto = plainToClass(TaskAdminDto, requestData);
         await validate(taskDto).then(errors => {
-            console.debug(errors);
             if (errors.length > 0) {
                 throw new BadRequestException('Не переданы все обязательные поля.');
             }
@@ -164,10 +156,24 @@ export class TasksController {
         }
 
         // Изменяем задачу.
-        this.tasksService.update(task, taskDto, assignee);
+        const updatedTask = await this.tasksService.update(task, taskDto, assignee);
         return {
             message: 'Задача обновлена',
-            success: true
+            success: true,
+            data: {
+                id: task.id,
+                title: task.title,
+                description: task.description,
+                deadline: task.deadline,
+                assignee: {
+                    id: task.assignee.id,
+                    login: task.assignee.login,
+                },
+                type: task.type,
+                progress: task.progress,
+                status: task.status,
+                created: task.created
+            },
         }
     }
 
@@ -210,9 +216,14 @@ export class TasksController {
      */
     @Roles(['assignee'])
     @Get('assignee')
-    assigneeTasks(@Request() request: any) {
+    async assigneeTasks(@Request() request: any) {
         const id = Number(request.user.id);
-        return this.tasksService.find({ where: { assignee: { id } } });
+        const tasks = await this.tasksService.findAssigneeTasks(id);
+        return {
+            message: 'Задачи получены',
+            success: true,
+            data: tasks
+        }
     }
 
     @Roles(['assignee'])
@@ -227,19 +238,31 @@ export class TasksController {
         if (!task) {
             throw new BadRequestException('Задача не найдена или не достаточно прав.');
         }
-
+        
         // Валидация DTO.
         await validate(taskAssigneeDto).then(errors => {
-            console.debug(errors);
             if (errors.length > 0) {
                 throw new BadRequestException('Не переданы все обязательные поля.');
             }
         });
-
+        
         this.tasksService.updateProgressStatus(task, taskAssigneeDto);
-
         return {
             message: 'Статус задачи обновлен',
+            data: {
+                id: task.id,
+                title: task.title,
+                description: task.description,
+                deadline: task.deadline,
+                assignee: {
+                    id: task.assignee.id,
+                    login: task.assignee.login,
+                },
+                type: task.type,
+                progress: task.progress,
+                status: task.status,
+                created: task.created
+            },
             success: true
         }
     }

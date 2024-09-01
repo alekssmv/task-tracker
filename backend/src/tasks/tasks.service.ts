@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { Task } from './task.entity';
-import { FindOneOptions, Repository } from 'typeorm';
+import { FindOneOptions, Repository, FindManyOptions } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from 'src/users/user.entity';
 import { TaskAdminDto } from './dto/task.admin.dto';
 import { TaskAssigneeDto } from './dto/task.assignee.dto';
+
 
 @Injectable()
 export class TasksService {
@@ -13,9 +14,25 @@ export class TasksService {
         private tasksRepository: Repository<Task>,
     ) { }
 
-    async find(options: FindOneOptions<Task>): Promise<Task[]> {
-        const tasks = await this.tasksRepository.find(options);
-        return this.tasksRepository.find(options);
+    async findAssigneeTasks(id: number) {
+        const tasks = await this.tasksRepository.createQueryBuilder("task")
+            .leftJoin("task.assignee", "assignee")
+            .addSelect(["assignee.login"])
+            .addSelect(["assignee.id"])
+            .where("task.assignee_id = :id", { id })
+            .getMany();
+        return tasks;
+    }
+
+    async findAdminTasks(id: number) {
+
+        const tasks = await this.tasksRepository.createQueryBuilder("task")
+            .leftJoin("task.assignee", "assignee")
+            .addSelect(["assignee.login"])
+            .addSelect(["assignee.id"])
+            .where("task.admin_id = :id", { id })
+            .getMany();
+        return tasks;
     }
 
     async findOne(options: FindOneOptions<Task>): Promise<Task> {
@@ -28,10 +45,9 @@ export class TasksService {
         task.description = taskDto.description;
         task.deadline = taskDto.deadline;
         task.status = 'Создана';
-        task.progress = '0%';
+        task.progress = 0;
         task.type = taskDto.type;
         task.assignee = assignee;
-        task.assignee_name = assignee.name;
         task.admin = admin;
         return this.tasksRepository.save(task);
     }
@@ -44,6 +60,7 @@ export class TasksService {
         task.type = taskDto.type ?? task.type;
         task.progress = taskDto.progress ?? task.progress;
         task.status = taskDto.status ?? task.status;
+        task.created = taskDto.created ?? task.created;
         task.updated = new Date();
         return this.tasksRepository.save(task);
     }
