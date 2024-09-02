@@ -8,6 +8,6 @@ export class AppController {
 
   @Get()
   getHello(): string {
-    return configDb().password;
+    return this.appService.getHello();
   }
 }
