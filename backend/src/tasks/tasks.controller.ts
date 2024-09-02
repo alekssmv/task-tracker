@@ -238,7 +238,7 @@ export class TasksController {
         if (!task) {
             throw new BadRequestException('Задача не найдена или не достаточно прав.');
         }
-        
+
         // Валидация DTO.
         await validate(taskAssigneeDto).then(errors => {
             if (errors.length > 0) {
@@ -255,8 +255,8 @@ export class TasksController {
                 description: task.description,
                 deadline: task.deadline,
                 assignee: {
-                    id: task.assignee.id,
-                    login: task.assignee.login,
+                    id: request.user.id,
+                    login: request.user.login
                 },
                 type: task.type,
                 progress: task.progress,
