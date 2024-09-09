@@ -1,6 +1,7 @@
-<p>Описание</p>
+<h1>Описание</h1>
 Простенький таск трекер на react + nest.js
-<p>Запуск</p>
+<br/>
+<h1>Запуск</h1>
 
 ```
 sudo git clone https://github.com/alekssmv/task-tracker && cd task-tracker && sudo mv ./backend/.env.example ./backend/.env && sudo docker-compose up --build
